@@ -19,7 +19,7 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
           <div>
             <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'var(--font-serif)' }}>
-              就活攻略ガイド
+              就活ナビ
             </p>
             <p className="text-xs tracking-widest uppercase mt-0.5" style={{ color: 'var(--accent)', opacity: 0.8 }}>
               Job Hunting Guide
@@ -140,10 +140,10 @@ export default async function Home() {
       <footer style={{ backgroundColor: 'var(--dark)', marginTop: '6rem' }}>
         <div className="max-w-6xl mx-auto px-6 py-10 text-center">
           <p className="font-black text-white" style={{ fontFamily: 'var(--font-serif)' }}>
-            就活攻略ガイド
+            就活ナビ
           </p>
           <p className="text-xs mt-2" style={{ color: '#6B7280' }}>
-            © 2026 就活攻略ガイド. All rights reserved.
+            © 2026 就活ナビ. All rights reserved.
           </p>
           <p className="text-xs mt-1" style={{ color: '#4B5563' }}>
             当サイトはアフィリエイト広告を利用しています

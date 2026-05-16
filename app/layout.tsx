@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: '就活攻略ガイド', template: '%s | 就活攻略ガイド' },
-  description: 'ES・面接・インターンを攻略する就活生のための情報サイト',
+  title: { default: '就活ナビ', template: '%s | 就活ナビ' },
+  description: 'ESから面接・インターンまで就活を完全攻略する情報サイト',
 };
 
 export default function RootLayout({
