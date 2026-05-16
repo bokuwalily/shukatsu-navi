@@ -20,16 +20,31 @@ export type Keyword = {
   used: boolean
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+function isConfigured(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const supabase = isConfigured(supabaseUrl)
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : (null as unknown as ReturnType<typeof createClient>)
 
 export function supabaseAdmin() {
-  return createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  if (!isConfigured(supabaseUrl)) {
+    throw new Error('Supabase is not configured')
+  }
+  return createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY ?? '')
 }
 
 export async function getArticles(limit = 10): Promise<Article[]> {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('articles')
     .select('*')
@@ -41,6 +56,7 @@ export async function getArticles(limit = 10): Promise<Article[]> {
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  if (!supabase) return null
   const { data, error } = await supabase
     .from('articles')
     .select('*')
@@ -52,6 +68,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 }
 
 export async function getAllSlugs(): Promise<string[]> {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('articles')
     .select('slug')
