@@ -8,6 +8,7 @@ vi.mock('@google/genai', () => {
       title: 'テスト記事タイトル',
       meta_desc: 'これはテスト用のメタディスクリプションです。就活生に役立つ情報を提供します。',
       content: '# テスト記事\n\n## 見出し2\n\nこれはテスト記事の内容です。',
+      tags: ['就活', '自己PR', 'ES', '面接', '大学生'],
     }),
   })
   class MockGoogleGenAI {
@@ -27,5 +28,7 @@ describe('generateArticle', () => {
     expect(result.slug).not.toContain(' ')
     expect(result.keyword).toBe('自己PR 書き方 例文')
     expect(result.category).toBe('ES・自己PR')
+    expect(Array.isArray(result.tags)).toBe(true)
+    expect(result.tags.length).toBeGreaterThan(0)
   })
 })

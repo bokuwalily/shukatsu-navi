@@ -9,6 +9,7 @@ export type Article = {
   meta_desc: string
   keyword: string
   category: string
+  tags: string[]
   published: boolean
   created_at: string
 }
