@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 就活ナビ（Shukatsu Navi）
 
-## Getting Started
+> 28卒のための、就活完全攻略ガイド。<br>
+> ES・面接・インターン・OB訪問・業界研究をひとつにまとめた、SEO型コンテンツメディア。
 
-First, run the development server:
+公開URL: <https://shukatsu-navi-jp.vercel.app>
+
+---
+
+## 何をしているか
+
+既存の就活メディアでは取りこぼされている、**28卒・地方学生・特定業界に絞った深い記事**を、AI で量産しつつ編集チェックを通して公開しています。記事は 100 本超、6 カテゴリで運用中。
+
+| カテゴリ | 内容 |
+|---|---|
+| ✍️ ES・自己PR | ガクチカ・自己PRの書き方を徹底解説 |
+| 🎤 面接対策 | 頻出質問から逆質問まで完全対策 |
+| 💼 インターン | 選考突破から参加後の活かし方まで |
+| 🔍 業界研究 | 業界別の傾向と対策 |
+| 🤝 OB・OG訪問 | アポ取りから質問例まで完全ガイド |
+| 📝 SPI・筆記 | 出題傾向と対策 |
+
+## 技術スタック
+
+| Layer | 技術 |
+|---|---|
+| Frontend | Next.js (App Router, ISR), React, TypeScript |
+| Backend | Supabase（記事・カテゴリ・キーワード管理） |
+| Content Pipeline | Gemini API + レートリミット制御スクリプト |
+| Hosting | Vercel |
+
+## ローカル起動
 
 ```bash
+npm install
+cp .env.example .env.local  # Supabase URL/Key を設定
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 記事生成パイプライン
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`scripts/` 配下に、Gemini を使った記事の bulk-generate、品質スコアによる upgrade、カテゴリ別の埋め直しスクリプトが入っています。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## アーキテクチャの特徴
 
-## Learn More
+- **ISR + revalidate** — 30 分単位で記事リストを再生成
+- **カテゴリ別 Featured 抽出** — 各カテゴリの上位記事をトップに表示
+- **タグ / カテゴリ / ページネーション** — URL パラメータ駆動で SEO に強い構造
 
-To learn more about Next.js, take a look at the following resources:
+## ライセンス
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

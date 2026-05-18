@@ -11,11 +11,14 @@
   --border:       #DDD6C8;
   --dark:         #0D1B2A;
   --dark-mid:     #1A2E42;
-  --font-serif:   'Noto Serif JP', 'Georgia', serif;
-  --font-sans:    'Noto Sans JP', 'Helvetica Neue', sans-serif;
+  --font-serif:   var(--font-noto-serif, 'Noto Serif JP'), 'Georgia', serif;
+  --font-sans:    var(--font-noto-sans, 'Noto Sans JP'), 'Helvetica Neue', sans-serif;
 }
 
 * { box-sizing: border-box; }
+
+/* スムーズスクロール */
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
@@ -24,54 +27,283 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Editorial prose styles for article body */
+/* ================================================================
+   article-body — 文字組み最適化
+   ================================================================ */
+.article-body {
+  font-size: 1rem;
+  line-height: 2.0;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+/* ---- H2: グラデーション背景の大見出し ---- */
 .article-body h2 {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  color: var(--text);
-  margin: 2.5rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--border);
+  color: white;
+  background: linear-gradient(135deg, #C84B31 0%, #E8693A 100%);
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  margin: 3rem 0 1.5rem;
+  line-height: 1.6;
 }
 
+/* ---- H3: アイコン付き中見出し ---- */
 .article-body h3 {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--text);
-  margin: 2rem 0 0.75rem;
+  margin: 2.25rem 0 0.875rem;
+  padding-left: 0.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
 }
 
+.article-body h3::before {
+  content: "▶";
+  color: var(--accent);
+  margin-right: 0.45rem;
+  font-size: 0.75em;
+  flex-shrink: 0;
+}
+
+/* ---- H4 ---- */
+.article-body h4 {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 1.75rem 0 0.625rem;
+  border-left: 3px solid var(--accent);
+  padding-left: 0.625rem;
+}
+
+/* ---- 本文 ---- */
 .article-body p {
   font-size: 1rem;
-  line-height: 1.9;
+  line-height: 2.0;
+  letter-spacing: 0.02em;
   color: var(--text);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.375rem;
 }
 
-.article-body ul, .article-body ol {
+/* ---- リスト ---- */
+.article-body ul {
+  padding-left: 0;
+  margin-bottom: 1.375rem;
+  list-style: none;
+}
+
+.article-body ul li {
+  position: relative;
   padding-left: 1.5rem;
-  margin-bottom: 1.25rem;
+  line-height: 1.9;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
 }
 
-.article-body li {
-  line-height: 1.8;
-  margin-bottom: 0.4rem;
+.article-body ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  color: var(--accent);
+  font-size: 0.85em;
+  font-weight: 700;
 }
 
+.article-body ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.375rem;
+  counter-reset: article-ol;
+  list-style: none;
+}
+
+.article-body ol li {
+  position: relative;
+  padding-left: 1.75rem;
+  line-height: 1.9;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+  counter-increment: article-ol;
+}
+
+.article-body ol li::before {
+  content: counter(article-ol);
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  width: 1.35rem;
+  height: 1.35rem;
+  background: var(--accent);
+  color: white;
+  font-size: 0.72em;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ---- リンク ---- */
 .article-body a {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: opacity 0.15s ease;
 }
+.article-body a:hover { opacity: 0.7; }
 
+/* ---- 強調 ---- */
 .article-body strong {
   font-weight: 700;
   color: var(--text);
+  background: linear-gradient(transparent 60%, rgba(200,75,49,0.15) 60%);
 }
 
-/* Hover card lift */
+/* ---- blockquote: ポイントBOX ---- */
+.article-body blockquote {
+  background: linear-gradient(135deg, #FFF5F3 0%, #FDFAF4 100%);
+  border-left: 4px solid var(--accent);
+  padding: 1rem 1.25rem;
+  margin: 2rem 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 2px 8px rgba(200, 75, 49, 0.1);
+  font-size: 0.97rem;
+  line-height: 1.85;
+}
+
+.article-body blockquote p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.97rem;
+}
+
+/* ---- テーブル: 縞模様＋ホバー ---- */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(13, 27, 42, 0.07);
+}
+
+.article-body table th {
+  background: var(--dark-mid);
+  color: white;
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.article-body table th:first-child { border-radius: 8px 0 0 0; }
+.article-body table th:last-child  { border-radius: 0 8px 0 0; }
+
+.article-body table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+  transition: background 0.12s ease;
+}
+
+.article-body table tr:nth-child(even) td {
+  background: var(--surface-alt);
+}
+
+.article-body table tr:hover td {
+  background: rgba(200, 75, 49, 0.05);
+}
+
+/* ---- コードブロック ---- */
+.article-body pre {
+  background: var(--dark);
+  color: #E5E7EB;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  margin: 1.75rem 0;
+  box-shadow: 0 4px 16px rgba(13, 27, 42, 0.15);
+}
+
+.article-body code {
+  background: var(--surface-alt);
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  border: none;
+}
+
+/* ---- 画像 ---- */
+.article-body img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.75rem 0;
+  object-fit: cover;
+  max-height: 400px;
+  box-shadow: 0 4px 16px rgba(13, 27, 42, 0.1);
+}
+
+/* ---- 水平線 ---- */
+.article-body hr {
+  border: none;
+  border-top: 2px dashed var(--border);
+  margin: 2.5rem 0;
+}
+
+/* ---- モバイル最適化 ---- */
+@media (max-width: 640px) {
+  .article-body {
+    font-size: 0.95rem;
+  }
+
+  .article-body h2 {
+    font-size: 1.15rem;
+    padding: 0.55rem 0.875rem;
+    margin: 2.5rem 0 1.25rem;
+  }
+
+  .article-body h3 {
+    font-size: 1.05rem;
+  }
+
+  .article-body table {
+    font-size: 0.82rem;
+  }
+
+  .article-body table th,
+  .article-body table td {
+    padding: 0.55rem 0.75rem;
+  }
+}
+
+/* ================================================================
+   Hover card lift (共通ユーティリティ)
+   ================================================================ */
 .card-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
