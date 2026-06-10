@@ -34,6 +34,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['https://shukatsunavi.vercel.app/og-default.png'],
   },
+  // Google Search Console のサイト所有権確認（env に確認コードを設定すると <meta> が出力される）
+  verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({

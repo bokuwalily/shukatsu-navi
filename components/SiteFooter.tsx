@@ -108,6 +108,26 @@ export function SiteFooter() {
         </div>
       </div>
 
+      {/* 規約リンク */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+          {[
+            { href: '/about', label: '運営者情報' },
+            { href: '/privacy', label: 'プライバシーポリシー' },
+            { href: '/contact', label: 'お問い合わせ' },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-xs transition-colors hover:text-white hover:underline underline-offset-2"
+              style={{ color: '#9CA3AF' }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* ボトムバー */}
       <div
         style={{

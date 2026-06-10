@@ -311,3 +311,48 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(13, 27, 42, 0.12);
 }
+
+/* ================================================================
+   static-prose — 規約・運営者情報など静的ページの文字組み
+   ================================================================ */
+.static-prose {
+  font-size: 0.975rem;
+  line-height: 1.95;
+  color: var(--text);
+}
+.static-prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent);
+}
+.static-prose h2:first-child { margin-top: 0; }
+.static-prose h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.6rem;
+  color: var(--dark);
+}
+.static-prose p { margin: 0.9rem 0; }
+.static-prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.static-prose ul { margin: 0.9rem 0; padding-left: 1.3rem; list-style: disc; }
+.static-prose ol { margin: 0.9rem 0; padding-left: 1.3rem; list-style: decimal; }
+.static-prose li { margin: 0.4rem 0; }
+.static-prose strong { font-weight: 700; color: var(--dark); }
+.static-prose .lead-note {
+  background: var(--surface-alt);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+.static-prose dl { margin: 1rem 0; }
+.static-prose dt { font-weight: 700; color: var(--dark); margin-top: 1rem; }
+.static-prose dd { margin: 0.25rem 0 0; color: var(--text-muted); }
