@@ -20,12 +20,12 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shukatsu-navi-jp.vercel.app'),
   title: {
-    default: '就活ナビ｜28卒就活完全攻略ガイド',
-    template: '%s｜就活ナビ',
+    default: '就活コンパス｜28卒就活完全攻略ガイド',
+    template: '%s｜就活コンパス',
   },
-  description: '就活ナビは28卒向けES・面接・インターン・業界研究の完全攻略ガイド。自己PR・グループディスカッション・OB訪問まで内定獲得のノウハウを網羅。',
+  description: '就活コンパスは28卒向けES・面接・インターン・業界研究の完全攻略ガイド。自己PR・グループディスカッション・OB訪問まで内定獲得のノウハウを網羅。',
   openGraph: {
-    siteName: '就活ナビ',
+    siteName: '就活コンパス',
     locale: 'ja_JP',
     type: 'website',
     images: [{ url: 'https://shukatsu-navi-jp.vercel.app/og-default.png', width: 1200, height: 630 }],
