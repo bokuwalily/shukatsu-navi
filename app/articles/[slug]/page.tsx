@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { marked } from 'marked'
-import DOMPurify from 'isomorphic-dompurify'
 import { getArticleBySlug, getAllSlugs, getRelatedArticles, getPopularInCategory, getTotalCount } from '@/lib/supabase'
 import { AffiliateBlock } from '@/components/AffiliateBlock'
 import { LikeButton } from '@/components/LikeButton'
@@ -70,7 +69,21 @@ function extractToc(markdown: string): { id: string; text: string }[] {
   return toc
 }
 
-/** marked にID付きH2レンダラーを設定し、DOMPurifyでサニタイズ */
+/**
+ * 記事本文（第一者コンテンツ）を marked で HTML 化する。
+ * 本文は自前の DB に service role でのみ書き込まれる信頼済みデータのため、
+ * jsdom 依存の DOMPurify は使わず（Vercel ランタイムで ERR_REQUIRE_ESM クラッシュの原因）、
+ * 防御として script/style/イベントハンドラ/javascript: のみを除去する。
+ */
+function scrubHtml(html: string): string {
+  return html
+    .replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '')
+    .replace(/<\s*style[^>]*>[\s\S]*?<\s*\/\s*style\s*>/gi, '')
+    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/(href|src)\s*=\s*("javascript:[^"]*"|'javascript:[^']*')/gi, '$1="#"')
+}
+
+/** marked にID付きH2レンダラーを設定し、本文を安全にHTML化 */
 function renderMarkdownSafe(content: string): string {
   const renderer = new marked.Renderer()
   const h2Count: Record<string, number> = {}
@@ -91,9 +104,8 @@ function renderMarkdownSafe(content: string): string {
   }
 
   marked.use({ renderer })
-  // DOMPurify でXSS対策済みコンテンツを返す
   const raw = marked.parse(content) as string
-  return DOMPurify.sanitize(raw)
+  return scrubHtml(raw)
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shukatsunavi.vercel.app'
