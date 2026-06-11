@@ -40,6 +40,10 @@ export const metadata: Metadata = {
       'application/rss+xml': '/feed.xml',
     },
   },
+  // AdSense サイト所有権の永続シグナル（再確認対策）。env 未設定なら出力しない。
+  other: process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
+    ? { 'google-adsense-account': process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID }
+    : {},
   // Google Search Console のサイト所有権確認（env に確認コードを設定すると <meta> が出力される）
   verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
