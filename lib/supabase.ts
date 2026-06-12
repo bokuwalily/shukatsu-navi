@@ -18,16 +18,64 @@ export type Article = {
   created_at: string
 }
 
-export async function getArticles(limit = 20, offset = 0, category?: string) {
-  let q = supabase.from('articles').select('*').eq('published', true).order('slug', { ascending: true })
+/** 一覧・カード表示用の軽量型。content本文を持たない（RSC/JSONペイロード削減のため） */
+export type ArticleListItem = Omit<Article, 'content' | 'keyword' | 'published'> & {
+  reading_min: number
+}
+
+/** content本文を落とし、読了時間だけ事前計算して持たせる */
+function toListItem(a: Article): ArticleListItem {
+  return {
+    id: a.id,
+    slug: a.slug,
+    title: a.title,
+    meta_desc: a.meta_desc,
+    category: a.category,
+    tags: a.tags,
+    created_at: a.created_at,
+    reading_min: Math.max(1, Math.ceil((a.content?.length ?? 0) / 400)),
+  }
+}
+
+export async function getArticles(limit = 20, offset = 0, category?: string): Promise<ArticleListItem[]> {
+  let q = supabase.from('articles').select('*').eq('published', true)
+    .order('created_at', { ascending: false })
+    .order('slug', { ascending: true })
   if (category) q = q.eq('category', category)
   const { data } = await q.range(offset, offset + limit - 1)
-  return data as Article[] ?? []
+  return ((data as Article[]) ?? []).map(toListItem)
 }
 
 export async function getArticleBySlug(slug: string) {
-  const { data } = await supabase.from('articles').select('*').eq('slug', slug).single()
+  const { data } = await supabase.from('articles').select('*').eq('slug', slug).eq('published', true).single()
   return data as Article | null
+}
+
+/** タイトル・meta_desc の部分一致でサイト全体の記事を検索（新着順） */
+export async function searchArticles(query: string, limit = 20, offset = 0): Promise<ArticleListItem[]> {
+  const escaped = query.replace(/[%_,()]/g, ' ').trim()
+  if (!escaped) return []
+  const { data } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('published', true)
+    .or(`title.ilike.%${escaped}%,meta_desc.ilike.%${escaped}%`)
+    .order('created_at', { ascending: false })
+    .order('slug', { ascending: true })
+    .range(offset, offset + limit - 1)
+  return ((data as Article[]) ?? []).map(toListItem)
+}
+
+/** 検索ヒット総数 */
+export async function getSearchCount(query: string) {
+  const escaped = query.replace(/[%_,()]/g, ' ').trim()
+  if (!escaped) return 0
+  const { count } = await supabase
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('published', true)
+    .or(`title.ilike.%${escaped}%,meta_desc.ilike.%${escaped}%`)
+  return count ?? 0
 }
 
 /** 新着順（created_at 降順）の記事を返す。RSS フィード用。 */
@@ -41,9 +89,13 @@ export async function getRecentArticles(limit = 30) {
   return (data as Pick<Article, 'slug' | 'title' | 'category' | 'meta_desc' | 'created_at'>[]) ?? []
 }
 
-export async function getAllSlugs() {
-  const { data } = await supabase.from('articles').select('slug').eq('published', true).order('slug', { ascending: true })
-  return data?.map(d => d.slug) ?? []
+export async function getAllSlugs(): Promise<{ slug: string; created_at: string }[]> {
+  const { data } = await supabase
+    .from('articles')
+    .select('slug, created_at')
+    .eq('published', true)
+    .order('slug', { ascending: true })
+  return (data as { slug: string; created_at: string }[]) ?? []
 }
 
 export async function getCategories() {
@@ -162,13 +214,14 @@ export async function markKeywordUsed(id: string) {
   await supabase.from('keywords').update({ used: true }).eq('id', id)
 }
 
-export async function getArticlesByTag(tag: string, limit = 20, offset = 0) {
+export async function getArticlesByTag(tag: string, limit = 20, offset = 0): Promise<ArticleListItem[]> {
   const { data } = await supabase.from('articles').select('*')
     .eq('published', true)
     .contains('tags', [tag])
+    .order('created_at', { ascending: false })
     .order('slug', { ascending: true })
     .range(offset, offset + limit - 1)
-  return data as Article[] ?? []
+  return ((data as Article[]) ?? []).map(toListItem)
 }
 
 export async function getTotalCountByTag(tag: string) {

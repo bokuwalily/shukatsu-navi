@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getArticles, getCategories, getTotalCount, getTopArticlesByCategories } from '@/lib/supabase'
+import { getArticles, getCategories, getTotalCount, getTopArticlesByCategories, searchArticles, getSearchCount } from '@/lib/supabase'
 import { ArticleSearch } from '@/components/ArticleSearch'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -10,11 +10,30 @@ export const revalidate = 1800
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shukatsunavi.vercel.app'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/' },
-}
-
 const PER_PAGE = 20
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; q?: string }>
+}): Promise<Metadata> {
+  const { page: pageParam, q: qParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+  const q = (qParam ?? '').trim()
+
+  // 検索結果は自己canonical（SearchAction の /?q={query} と一致させる）
+  if (q) {
+    const qs = `?q=${encodeURIComponent(q)}${page > 1 ? `&page=${page}` : ''}`
+    return {
+      title: `「${q}」の検索結果`,
+      alternates: { canonical: `/${qs}` },
+    }
+  }
+  // ページネーション2ページ目以降も自己canonical（1ページ目への正規化をやめる）
+  return {
+    alternates: { canonical: page > 1 ? `/?page=${page}` : '/' },
+  }
+}
 
 // カテゴリ統合定義（一箇所だけで管理）
 type CategoryMeta = { name: string; icon: string; desc: string; color: string }
@@ -38,23 +57,32 @@ const FEATURED_CATEGORIES = ['ES・自己PR','面接対策','インターン','O
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; category?: string }>
+  searchParams: Promise<{ page?: string; category?: string; q?: string }>
 }) {
-  const { page: pageParam, category: categoryParam } = await searchParams
-  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10))
+  const { page: pageParam, category: categoryParam, q: qParam } = await searchParams
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
   const activeCategory = categoryParam ?? ''
+  const searchQuery = (qParam ?? '').trim()
 
+  const offset = (currentPage - 1) * PER_PAGE
   const [articles, { categories, tags }, totalCount, featuredArticles] = await Promise.all([
-    getArticles(PER_PAGE, (currentPage - 1) * PER_PAGE, activeCategory || undefined),
+    searchQuery
+      ? searchArticles(searchQuery, PER_PAGE, offset)
+      : getArticles(PER_PAGE, offset, activeCategory || undefined),
     getCategories(),
-    getTotalCount(activeCategory || undefined),
+    searchQuery ? getSearchCount(searchQuery) : getTotalCount(activeCategory || undefined),
     getTopArticlesByCategories(FEATURED_CATEGORIES),
   ])
 
+  // サイト全体の公開記事数（ヒーロー等の「全N記事」表示用。カテゴリ件数の合計なので追加クエリ不要）
+  const siteTotal = categories.reduce((sum, [, n]) => sum + n, 0)
+
   const totalPages = Math.ceil(totalCount / PER_PAGE)
-  const basePath = activeCategory
-    ? `/?category=${encodeURIComponent(activeCategory)}`
-    : '/'
+  const basePath = searchQuery
+    ? `/?q=${encodeURIComponent(searchQuery)}`
+    : activeCategory
+      ? `/?category=${encodeURIComponent(activeCategory)}`
+      : '/'
   const categoryCountMap = new Map(categories.map(([c, n]) => [c, n]))
 
   const websiteJsonLd = {
@@ -108,7 +136,7 @@ export default async function Home({
             <p className="text-base md:text-lg leading-relaxed mb-8" style={{ color: '#9CA3AF' }}>
               ES・自己PR・面接・インターンまで、内定獲得の全ステップを徹底ナビゲート。
               <br className="hidden md:block" />
-              全<span className="font-bold text-white">{totalCount}</span>記事が無料でご覧いただけます。
+              全<span className="font-bold text-white">{siteTotal}</span>記事が無料でご覧いただけます。
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -131,7 +159,7 @@ export default async function Home({
       </section>
 
       {/* ===== 統合カテゴリグリッド（メインのカテゴリナビ） ===== */}
-      <section style={{ backgroundColor: 'var(--surface-alt)', borderBottom: '1px solid var(--border)' }}>
+      <section id="categories" style={{ backgroundColor: 'var(--surface-alt)', borderBottom: '1px solid var(--border)' }}>
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="flex items-end justify-between mb-7">
             <div>
@@ -146,7 +174,7 @@ export default async function Home({
               </h2>
             </div>
             <p className="text-xs hidden md:block" style={{ color: 'var(--text-muted)' }}>
-              全{totalCount}記事を12カテゴリで分類
+              全{siteTotal}記事を12カテゴリで分類
             </p>
           </div>
 
@@ -267,14 +295,18 @@ export default async function Home({
                 <div className="flex items-center gap-3 mb-2">
                   <div style={{ width: 28, height: 2, backgroundColor: 'var(--accent)' }} />
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
-                    {activeCategory ? activeCategory : 'All Articles'}
+                    {searchQuery ? 'Search Results' : activeCategory ? activeCategory : 'All Articles'}
                   </span>
                 </div>
                 <h2 className="text-xl md:text-2xl font-black" style={{ fontFamily: 'var(--font-serif)', color: 'var(--text)' }}>
-                  {activeCategory ? `${activeCategory}の記事` : '新着記事'}
+                  {searchQuery
+                    ? `「${searchQuery}」の検索結果`
+                    : activeCategory
+                      ? `${activeCategory}の記事`
+                      : '新着記事'}
                 </h2>
               </div>
-              {activeCategory && (
+              {(activeCategory || searchQuery) && (
                 <Link
                   href="/"
                   className="text-xs font-bold hover:opacity-70 transition-opacity"
@@ -286,9 +318,9 @@ export default async function Home({
             </div>
 
             {/* 検索 + 記事グリッド */}
-            <ArticleSearch articles={articles} totalCount={totalCount} />
+            <ArticleSearch articles={articles} totalCount={totalCount} serverQuery={searchQuery} />
 
-            {!activeCategory && (
+            {(searchQuery || !activeCategory) && (
               <Pagination currentPage={currentPage} totalPages={totalPages} basePath={basePath} />
             )}
           </div>
@@ -331,7 +363,7 @@ export default async function Home({
                 内定まで<br />全力でサポート
               </p>
               <p className="text-xs mb-5" style={{ color: '#9CA3AF' }}>
-                全{totalCount}記事無料・28卒最新情報を随時更新
+                全{siteTotal}記事無料・28卒最新情報を随時更新
               </p>
               <Link
                 href="/category/ES・自己PR"

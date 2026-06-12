@@ -18,14 +18,20 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ name: string }>
+  searchParams: Promise<{ page?: string }>
 }): Promise<Metadata> {
-  const { name } = await params
+  const [{ name }, { page: pageParam }] = await Promise.all([params, searchParams])
   const tag = decodeURIComponent(name)
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+  // 2ページ目以降は自己canonical（?page=付き）
+  const canonicalBase = `/tag/${encodeURIComponent(tag)}`
   return {
     title: `#${tag} の記事一覧`,
     description: `タグ「${tag}」に関する就活記事の一覧です。`,
+    alternates: { canonical: page > 1 ? `${canonicalBase}?page=${page}` : canonicalBase },
   }
 }
 

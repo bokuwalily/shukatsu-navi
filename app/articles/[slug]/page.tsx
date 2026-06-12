@@ -17,7 +17,7 @@ export const revalidate = 3600
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs()
-  return slugs.map((slug) => ({ slug }))
+  return slugs.map(({ slug }) => ({ slug }))
 }
 
 export async function generateMetadata({
@@ -39,7 +39,8 @@ export async function generateMetadata({
       url: `/articles/${slug}`,
       publishedTime: article.created_at,
       modifiedTime: article.created_at,
-      images: [`https://picsum.photos/seed/shukatsu-${slug}/1200/630`],
+      // JSON-LD の image と同じデフォルトOG画像を使う（picsum のランダム画像は廃止）
+      images: ['/og-default.png'],
     },
   }
 }

@@ -24,17 +24,22 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ name: string }>
+  searchParams: Promise<{ page?: string }>
 }): Promise<Metadata> {
-  const { name } = await params
+  const [{ name }, { page: pageParam }] = await Promise.all([params, searchParams])
   const category = decodeURIComponent(name)
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
   const totalCount = await getTotalCount(category)
   const description = `${category}の就活攻略記事${totalCount}件をまとめています。28卒向けに${category}の対策・やり方・コツを実例つきで解説。内定獲得に役立つ情報を厳選しています。`
+  // 2ページ目以降は自己canonical（?page=付き）
+  const canonicalBase = `/category/${encodeURIComponent(category)}`
   return {
     title: `${category}の記事一覧`,
     description,
-    alternates: { canonical: `/category/${encodeURIComponent(category)}` },
+    alternates: { canonical: page > 1 ? `${canonicalBase}?page=${page}` : canonicalBase },
     openGraph: {
       title: `${category}の記事一覧｜就活ナビ`,
       description,

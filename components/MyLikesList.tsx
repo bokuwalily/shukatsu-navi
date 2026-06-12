@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArticleCard } from './ArticleCard'
-import type { Article } from '@/lib/supabase'
+import type { ArticleListItem } from '@/lib/supabase'
 
 export function MyLikesList() {
-  const [articles, setArticles] = useState<Article[] | null>(null)
+  const [articles, setArticles] = useState<ArticleListItem[] | null>(null)
 
   useEffect(() => {
     fetch('/api/my-likes')

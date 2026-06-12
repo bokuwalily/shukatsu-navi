@@ -25,12 +25,17 @@ export async function GET() {
 
   const { data: articles } = await supabase
     .from('articles')
-    .select('slug, title, category, meta_desc, created_at, tags, content')
+    .select('id, slug, title, category, meta_desc, created_at, tags, content')
     .in('slug', slugs)
     .eq('published', true)
 
-  // いいね順に並び替え
+  // いいね順に並び替え + content本文を落として読了時間だけ返す（ペイロード削減）
   const sortMap = new Map(slugs.map((s, i) => [s, i]))
-  const sorted = (articles ?? []).sort((a, b) => (sortMap.get(a.slug) ?? 0) - (sortMap.get(b.slug) ?? 0))
+  const sorted = (articles ?? [])
+    .sort((a, b) => (sortMap.get(a.slug) ?? 0) - (sortMap.get(b.slug) ?? 0))
+    .map(({ content, ...rest }) => ({
+      ...rest,
+      reading_min: Math.max(1, Math.ceil((content?.length ?? 0) / 400)),
+    }))
   return NextResponse.json({ articles: sorted })
 }

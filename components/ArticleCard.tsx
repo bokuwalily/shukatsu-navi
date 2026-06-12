@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Article } from '@/lib/supabase'
+import { ArticleListItem } from '@/lib/supabase'
 
 // カテゴリごとの色定義（バッジ用 + サムネイルグラデ用）
 const CATEGORY_THEME: Record<string, { badge: string; text: string; from: string; to: string; icon: string }> = {
@@ -20,8 +20,8 @@ const CATEGORY_THEME: Record<string, { badge: string; text: string; from: string
 const DEFAULT_THEME = { badge: '#FEE2E2', text: '#991B1B', from: '#F87171', to: '#DC2626', icon: '📄' }
 const getTheme = (c: string) => CATEGORY_THEME[c] ?? DEFAULT_THEME
 
-export function ArticleCard({ article, featured = false }: { article: Article; featured?: boolean }) {
-  const readingTime = Math.max(1, Math.ceil(article.content.length / 400))
+export function ArticleCard({ article, featured = false }: { article: ArticleListItem; featured?: boolean }) {
+  const readingTime = article.reading_min
   const theme = getTheme(article.category)
 
   return (
