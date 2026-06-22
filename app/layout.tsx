@@ -77,11 +77,11 @@ export default function RootLayout({
         {children}
         {/* Google Analytics 4 */}
         <Script
-        <Script defer src="/_vercel/speed-insights/script.js" strategy="afterInteractive" />
           src="https://www.googletagmanager.com/gtag/js?id=G-N7N7DZ48W8"
           strategy="afterInteractive"
         />
         <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-N7N7DZ48W8');`}</Script>
+        <Script defer src="/_vercel/speed-insights/script.js" strategy="afterInteractive" />
         <AdSenseScript />
       </body>
     </html>
