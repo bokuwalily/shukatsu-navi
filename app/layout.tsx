@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Serif_JP, Noto_Sans_JP } from 'next/font/google'
+import Script from 'next/script'
 import { AdSenseScript } from '@/components/AdSenseScript'
 import "./globals.css";
 
@@ -74,6 +75,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c') }}
         />
         {children}
+        {/* Google Analytics 4 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-N7N7DZ48W8"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-N7N7DZ48W8');`}</Script>
         <AdSenseScript />
       </body>
     </html>
