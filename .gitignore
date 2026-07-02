@@ -43,3 +43,6 @@ next-env.d.ts
 .agents/
 .claude/skills/
 skills-lock.json
+
+# 一時生成スクリプト(実パス含む)は公開しない
+tmp-batches/
